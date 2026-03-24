@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claro - Reporte de Robo o Pérdida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --claro-red: #ef3340;
+            --claro-dark: #212121;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .bg-claro-red { background-color: var(--claro-red); }
+        .text-claro-red { color: var(--claro-red); }
+        .border-claro-red { border-color: var(--claro-red); }
+        
+        .option-card.selected {
+            border-color: var(--claro-red);
+            background-color: #fef2f2;
+            box-shadow: 0 4px 12px rgba(239, 51, 64, 0.1);
+        }
+        
+        .btn-claro {
+            background-color: var(--claro-red);
+            transition: all 0.2s ease;
+        }
+        .btn-claro:hover {
+            background-color: #d12a35;
+            transform: scale(1.02);
+        }
+        .btn-claro:disabled {
+            background-color: #fda4af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header Claro -->
+    <header class="bg-white border-b-4 border-claro-red sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center">
+                <!-- Logo Claro Simulado -->
+                <div class="flex items-center gap-1">
+                    <div class="w-10 h-10 bg-claro-red rounded-full flex items-center justify-center text-white font-bold text-2xl">C</div>
+                    <span class="text-2xl font-bold tracking-tighter text-gray-900">Claro</span>
+                </div>
+            </div>
+            <div class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="#" class="text-gray-600 hover:text-claro-red transition">Personas</a>
+                <a href="#" class="text-gray-600 hover:text-claro-red transition">Servicios</a>
+                <a href="#" class="text-claro-red font-bold underline">Reportar Robo</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto py-10 px-4">
+        
+        <!-- Encabezado de Acción -->
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-extrabold text-gray-900 uppercase">Bloqueo de Equipo y Línea</h1>
+            <p class="text-gray-500 mt-2">Protege tu cuenta y bloquea tu terminal en la red nacional.</p>
+        </div>
+
+        <!-- Selector de Modo de Reporte -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div id="mode-imei" onclick="setMode('imei')" class="option-card selected p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-red-100 text-claro-red rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-barcode text-xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">Tengo el IMEI</h3>
+                <p class="text-xs text-gray-500 mt-1">Bloqueo específico del terminal usando los 15 dígitos.</p>
+            </div>
+            
+            <div id="mode-cedula" onclick="setMode('cedula')" class="option-card p-6 border-2 border-gray-200 rounded-2xl cursor-pointer transition-all flex flex-col items-center text-center bg-white">
+                <div class="w-12 h-12 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mb-4 icon-box">
+                    <i class="fas fa-id-card text-xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800">Solo Línea y Cédula</h3>
+                <p class="text-xs text-gray-500 mt-1">Bloqueo basado en los datos del titular registrados.</p>
+            </div>
+        </div>
+
+        <!-- Formulario dinámico -->
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <form id="claroForm" class="p-8 space-y-6">
+                
+                <div class="space-y-4">
+                    <!-- Campo siempre visible: Número -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 italic">Número Claro (10 dígitos)</label>
+                        <div class="relative">
+                            <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="tel" id="phone" maxlength="10" placeholder="Ej: 3101234567" 
+                                   class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-claro-red transition-all font-semibold">
+                        </div>
+                    </div>
+
+                    <!-- Campo siempre visible: Cédula -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 italic">Cédula del Titular</label>
+                        <div class="relative">
+                            <i class="fas fa-user-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="cedula" placeholder="Número de identificación" 
+                                   class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-claro-red transition-all font-semibold">
+                        </div>
+                    </div>
+
+                    <!-- Campo condicional: IMEI -->
+                    <div id="imei-field" class="animate-in fade-in duration-300">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 italic">Código IMEI (Opcional si usas modo Cédula)</label>
+                        <div class="relative">
+                            <i class="fas fa-mobile-alt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="imei" maxlength="15" placeholder="86XXXXXXXXXXXXX" 
+                                   class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-claro-red transition-all font-mono tracking-widest">
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1 ml-1">* El IMEI permite un bloqueo más preciso del hardware en todas las redes.</p>
+                    </div>
+                </div>
+
+                <!-- Detalles del Incidente -->
+                <div class="pt-4 border-t border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-tighter">Motivo del reporte</label>
+                    <div class="flex gap-4">
+                        <button type="button" onclick="setReason('robo')" id="reason-robo" class="flex-1 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-50 transition active-reason">Robo</button>
+                        <button type="button" onclick="setReason('perdida')" id="reason-perdida" class="flex-1 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-50 transition">Extravío</button>
+                    </div>
+                </div>
+
+                <!-- Botón de Acción -->
+                <button type="button" id="submitBtn" onclick="processReport()" class="w-full py-5 btn-claro text-white font-black text-lg rounded-2xl shadow-xl shadow-red-200 uppercase tracking-widest mt-4">
+                    Solicitar Bloqueo Ahora
+                </button>
+
+                <p class="text-[10px] text-center text-gray-400 px-8 leading-tight">
+                    Al solicitar el bloqueo, usted confirma la veracidad del hecho. Claro procesará la suspensión de la línea y el ingreso del equipo a la base de datos negativa de terminales móviles.
+                </p>
+            </form>
+        </div>
+
+        <!-- Medios de ayuda -->
+        <div class="mt-8 flex flex-col md:flex-row gap-4">
+            <div class="flex-1 bg-white p-6 rounded-3xl border border-gray-100 flex items-center gap-4 shadow-sm">
+                <i class="fas fa-headset text-claro-red text-2xl"></i>
+                <div class="text-xs">
+                    <h4 class="font-bold">Llamada de Emergencia</h4>
+                    <p class="text-gray-500">Marca *611 desde otro Claro.</p>
+                </div>
+            </div>
+            <div class="flex-1 bg-white p-6 rounded-3xl border border-gray-100 flex items-center gap-4 shadow-sm">
+                <i class="fas fa-store text-claro-red text-2xl"></i>
+                <div class="text-xs">
+                    <h4 class="font-bold">Centros de Atención</h4>
+                    <p class="text-gray-500">Localiza tu punto físico más cercano.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmación -->
+    <div id="successModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-500">
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shield-check text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-900 mb-2">REPORTE EXITOSO</h2>
+                <p class="text-sm text-gray-500 mb-6">Tu línea y equipo se encuentran en proceso de bloqueo preventivo.</p>
+                
+                <div class="bg-gray-50 border-2 border-dashed border-gray-200 p-4 rounded-2xl mb-8">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Código de Radicado</p>
+                    <p id="radicadoCode" class="text-2xl font-mono font-black text-gray-800 tracking-tighter">CLR-000-000</p>
+                </div>
+
+                <button onclick="window.location.reload()" class="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition shadow-lg">
+                    ACEPTAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'imei';
+        let currentReason = 'robo';
+
+        function setMode(mode) {
+            currentMode = mode;
+            const imeiCard = document.getElementById('mode-imei');
+            const cedulaCard = document.getElementById('mode-cedula');
+            const imeiField = document.getElementById('imei-field');
+            const imeiInput = document.getElementById('imei');
+
+            if (mode === 'imei') {
+                imeiCard.classList.add('selected', 'border-claro-red', 'bg-red-50');
+                imeiCard.querySelector('.icon-box')?.classList.add('text-claro-red', 'bg-red-100');
+                cedulaCard.classList.remove('selected', 'border-claro-red', 'bg-red-50');
+                imeiField.classList.remove('hidden');
+                imeiInput.required = true;
+            } else {
+                cedulaCard.classList.add('selected', 'border-claro-red', 'bg-red-50');
+                imeiCard.classList.remove('selected', 'border-claro-red', 'bg-red-50');
+                imeiField.classList.add('hidden');
+                imeiInput.required = false;
+                imeiInput.value = ""; // Limpiar IMEI si cambia a modo cédula
+            }
+        }
+
+        function setReason(reason) {
+            currentReason = reason;
+            const roboBtn = document.getElementById('reason-robo');
+            const perdidaBtn = document.getElementById('reason-perdida');
+
+            if (reason === 'robo') {
+                roboBtn.classList.add('border-claro-red', 'bg-red-50', 'text-claro-red');
+                perdidaBtn.classList.remove('border-claro-red', 'bg-red-50', 'text-claro-red');
+            } else {
+                perdidaBtn.classList.add('border-claro-red', 'bg-red-50', 'text-claro-red');
+                roboBtn.classList.remove('border-claro-red', 'bg-red-50', 'text-claro-red');
+            }
+        }
+
+        function processReport() {
+            const phone = document.getElementById('phone').value;
+            const cedula = document.getElementById('cedula').value;
+            const imei = document.getElementById('imei').value;
+            const btn = document.getElementById('submitBtn');
+
+            // Validaciones básicas
+            if (phone.length < 10) {
+                alert("Por favor ingresa un número de 10 dígitos.");
+                return;
+            }
+            if (!cedula) {
+                alert("Debes ingresar la cédula del titular.");
+                return;
+            }
+            if (currentMode === 'imei' && imei.length < 15) {
+                alert("El código IMEI debe tener 15 dígitos.");
+                return;
+            }
+
+            // Animación de carga
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROCESANDO SOLICITUD...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const radicado = "CLR-" + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('radicadoCode').innerText = radicado;
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        }
+
+        // Formatear entradas numéricas
+        document.getElementById('phone').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        document.getElementById('imei').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Inicializar diseño de razones
+        setReason('robo');
+    </script>
+</body>
+</html>
+
